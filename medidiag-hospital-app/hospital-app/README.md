@@ -61,18 +61,19 @@ if you present this to your supervisor or in production.
 
 ## Data & accounts
 
-There's no seeded admin login — sign up once with "Administrator" selected
-to create one. Anyone can currently self-select "Administrator" at signup
-since there's no backend to gate it; for production, move that check
-server-side (e.g. admin accounts created by invite only).
+This frontend talks to a real backend (`medidiag_api/`, FastAPI +
+SQLAlchemy). Accounts, patient records, and facility settings are stored
+server-side; passwords are hashed with bcrypt and sessions use JWTs.
 
-This build persists clinician accounts and patient records in the browser's
-`localStorage`, scoped per clinician email, so it runs anywhere without a
-backend. There is no password hashing or encryption — **do not use this as
-shipped with real patient data.** For a real deployment, swap `AuthContext`
-and `PatientContext` for calls to a real backend/API with proper auth
-(hashed passwords, sessions/JWT) and encrypted storage, since this will
-handle health information.
+There's no seeded admin login — sign up once with "Administrator" selected
+and the correct admin PIN (set via `MEDIDIAG_ADMIN_PIN` on the backend) to
+create one. The PIN is checked server-side, not in the browser.
+
+Set `VITE_API_URL` (see `.env.example`) to point this frontend at your
+running backend. See `medidiag_api/README`-equivalent notes and
+`.env.example` there for the backend's own required environment variables
+(`MEDIDIAG_SECRET_KEY`, `MEDIDIAG_ADMIN_PIN`, `CORS_ORIGINS`, and optionally
+`DATABASE_URL` for Postgres in production).
 
 ## Stack
 

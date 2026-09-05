@@ -74,7 +74,9 @@ class RecordCreate(BaseModel):
     sex: Optional[str] = None
     vitals: Optional[VitalsIn] = None
     symptoms: List[str]
-    result: dict  # {diagnosis, drug, malariaPct, typhoidPct} from utils/api.js
+    # Kept optional for backward compatibility with older frontend builds;
+    # the server recomputes the actual result from symptoms and ignores this.
+    result: Optional[dict] = None
 
 
 class RecordOut(BaseModel):

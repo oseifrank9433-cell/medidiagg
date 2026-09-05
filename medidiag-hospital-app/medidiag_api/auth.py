@@ -6,18 +6,31 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
+from dotenv import load_dotenv
+
 from database import get_db
 import models
 
-# In production, set this via a real environment variable and never commit
-# it to source control. This fallback is fine for local development only.
-SECRET_KEY = os.environ.get("MEDIDIAG_SECRET_KEY", "dev-only-secret-change-me")
+load_dotenv()
+
+
+def _require_env(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(
+            f"{name} is not set. Copy .env.example to .env (for local dev) or set it "
+            f"as a real environment variable on your host before starting the API."
+        )
+    return value
+
+
+SECRET_KEY = _require_env("MEDIDIAG_SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
-# Admin sign-up PIN, moved server-side (it was previously checked in the
+# Admin sign-up PIN, checked server-side (it was previously checked in the
 # browser, which meant it was trivially visible in the frontend bundle).
-ADMIN_SIGNUP_PIN = os.environ.get("MEDIDIAG_ADMIN_PIN", "4821")
+ADMIN_SIGNUP_PIN = _require_env("MEDIDIAG_ADMIN_PIN")
 
 import bcrypt
 

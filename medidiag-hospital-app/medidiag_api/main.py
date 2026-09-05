@@ -25,7 +25,7 @@ allowed_origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_origin_regex=r"https://.*\\.vercel\\.app|https://.*\\.up\\.railway\\.app|http://localhost:5173",
+    allow_origin_regex=r"https://.*\.vercel\.app|https://.*\.up\.railway\.app|http://localhost:5173",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -178,6 +178,30 @@ def create_record(
     current_user: models.User = Depends(auth.get_current_user),
     db: Session = Depends(get_db),
 ):
+    # The diagnosis is recomputed here from the symptoms rather than trusted
+    # from payload.result, so a record's stored result always matches what
+    # the model actually produces for those symptoms (payload.result is kept
+    # only for backward compatibility with older frontend builds and is
+    # otherwise ignored).
+    invalid = [s for s in payload.symptoms if s not in SYMPTOMS]
+    if invalid:
+        raise HTTPException(status_code=400, detail=f"Unknown symptoms: {invalid}")
+    if len(payload.symptoms) == 0:
+        raise HTTPException(status_code=400, detail="At least one symptom is required.")
+
+    prediction, drug, malaria_pct, typhoid_pct = run_diagnosis(payload.symptoms)
+
+    settings = (
+        db.query(models.FacilitySettings)
+        .filter(models.FacilitySettings.facility == current_user.facility)
+        .first()
+    )
+    threshold = settings.confidence_threshold if settings else 60.0
+    if max(malaria_pct, typhoid_pct) < threshold:
+        diagnosis, drug = "Unknown / Refer to Clinician", "No automatic prescription. Recommend laboratory testing."
+    else:
+        diagnosis = prediction
+
     vitals = payload.vitals or schemas.VitalsIn()
     record = models.Record(
         clinician_id=current_user.id,
@@ -187,10 +211,10 @@ def create_record(
         vitals_temperature=vitals.temperature,
         vitals_fever_days=vitals.feverDays,
         symptoms=payload.symptoms,
-        diagnosis=payload.result.get("diagnosis"),
-        drug=payload.result.get("drug"),
-        malaria_pct=payload.result.get("malariaPct", 0),
-        typhoid_pct=payload.result.get("typhoidPct", 0),
+        diagnosis=diagnosis,
+        drug=drug,
+        malaria_pct=malaria_pct,
+        typhoid_pct=typhoid_pct,
     )
     db.add(record)
     db.commit()

@@ -1,5 +1,12 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://medidiag-production.up.railway.app';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://medidiag-production.up.railway.app';
+
+const TOKEN_KEY = 'medidiag_token';
 let inMemoryToken = null;
+try {
+  inMemoryToken = sessionStorage.getItem(TOKEN_KEY);
+} catch {
+  // sessionStorage unavailable (e.g. private browsing) -- fall back to memory-only.
+}
 
 export function getToken() {
   return inMemoryToken;
@@ -7,6 +14,12 @@ export function getToken() {
 
 export function setToken(token) {
   inMemoryToken = token || null;
+  try {
+    if (token) sessionStorage.setItem(TOKEN_KEY, token);
+    else sessionStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // sessionStorage unavailable -- token still works for this page load via memory.
+  }
 }
 
 /**

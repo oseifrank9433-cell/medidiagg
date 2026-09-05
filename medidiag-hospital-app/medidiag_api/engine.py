@@ -1,8 +1,12 @@
+from pathlib import Path
+
 import joblib
 import pandas as pd
 
-# Load model
-MODEL = joblib.load("model/medidiag_model.pkl")
+# Resolved relative to this file (not the process cwd) so it loads correctly
+# regardless of where uvicorn is started from.
+MODEL_PATH = Path(__file__).parent / "model" / "medidiag_model.pkl"
+MODEL = joblib.load(MODEL_PATH)
 
 # CRITICAL: this list is pulled directly from the trained model's own
 # feature_names_in_, not hand-typed, and MUST stay this way. See project

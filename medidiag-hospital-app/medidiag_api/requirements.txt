@@ -5,7 +5,8 @@ joblib
 pandas
 pydantic[email]
 sqlalchemy
-passlib[bcrypt]
 python-jose[cryptography]
 python-multipart
 bcrypt
+python-dotenv
+psycopg2-binary
