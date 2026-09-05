@@ -1,9 +1,11 @@
+import logging
 import os
 from datetime import datetime, timezone
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 import auth
@@ -30,6 +32,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Starlette's CORSMiddleware only attaches CORS headers to responses that
+# come back through it normally; an unhandled exception instead bubbles up
+# to ServerErrorMiddleware (which sits outside CORSMiddleware), so the
+# resulting 500 has no CORS headers at all -- browsers then report it as a
+# CORS failure, hiding the real error. Catching it here keeps it inside
+# CORSMiddleware's response path.
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logging.exception("Unhandled exception while handling %s %s", request.method, request.url.path)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error."})
 
 
 # ---------------------------------------------------------------------------
