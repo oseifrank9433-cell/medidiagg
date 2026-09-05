@@ -13,7 +13,6 @@ const clinicianLinks = [
 
 const adminLinks = [
   { to: '/admin/dashboard', label: 'Facility Overview', icon: IconGrid },
-  { to: '/admin/symptoms', label: 'Symptoms Checklist', icon: IconClipboard },
   { to: '/admin/settings', label: 'Facility Settings', icon: IconGear },
   { to: '/admin/profile', label: 'My Profile', icon: IconUser },
 ];
@@ -53,15 +52,6 @@ function IconUser() {
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
       <circle cx="9" cy="6" r="3" stroke="currentColor" strokeWidth="1.4" />
       <path d="M2.8 15.5C3.6 12.4 6 10.8 9 10.8C12 10.8 14.4 12.4 15.2 15.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-    </svg>
-  );
-}
-function IconClipboard() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <path d="M4.5 3.4h9a1.2 1.2 0 0 1 1.2 1.2v9.8a1.2 1.2 0 0 1-1.2 1.2h-9a1.2 1.2 0 0 1-1.2-1.2V4.6a1.2 1.2 0 0 1 1.2-1.2Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-      <path d="M6.8 2h4.4a.6.6 0 0 1 .6.6v1.2a.6.6 0 0 1-.6.6H6.8a.6.6 0 0 1-.6-.6V2.6a.6.6 0 0 1 .6-.6Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-      <path d="M5.8 8h6.4M5.8 10.6h6.4M5.8 13.2h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
 }
